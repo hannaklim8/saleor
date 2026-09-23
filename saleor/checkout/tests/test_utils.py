@@ -1,3 +1,4 @@
+import datetime
 from decimal import Decimal
 
 import graphene
@@ -6,7 +7,7 @@ from prices import Money, TaxedMoney
 
 from ...discount import DiscountType, DiscountValueType
 from ...tax.calculations import get_taxed_undiscounted_price
-from ..utils import checkout_info_for_logs
+from ..utils import checkout_info_for_logs, is_desired_delivery_date_valid
 
 BASE = Money("35.00", "USD")
 
@@ -89,3 +90,26 @@ def test_checkout_info_for_logs(checkout_info, voucher, order_promotion_with_rul
     assert extra["checkout_id"] == graphene.Node.to_global_id("Checkout", checkout.pk)
     assert extra["discounts"]
     assert extra["lines"][0]["discounts"]
+
+
+@pytest.mark.parametrize(
+    ("_case", "days_from_today", "expected"),
+    [
+        ("tomorrow", 1, True),
+        ("thirty_days_from_now", 30, True),
+        ("in_the_middle_of_the_range", 15, True),
+        ("today", 0, False),
+        ("yesterday", -1, False),
+        ("thirty_one_days_from_now", 31, False),
+    ],
+)
+def test_is_desired_delivery_date_valid(_case, days_from_today, expected):
+    # given
+    today = datetime.datetime.now(tz=datetime.UTC).date()
+    desired_delivery_date = today + datetime.timedelta(days=days_from_today)
+
+    # when
+    result = is_desired_delivery_date_valid(desired_delivery_date)
+
+    # then
+    assert result is expected

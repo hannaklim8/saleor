@@ -8,6 +8,7 @@ from .checkout_customer_detach import CheckoutCustomerDetach
 from .checkout_customer_note_update import CheckoutCustomerNoteUpdate
 from .checkout_delete import CheckoutDelete
 from .checkout_delivery_method_update import CheckoutDeliveryMethodUpdate
+from .checkout_desired_delivery_date_update import CheckoutDesiredDeliveryDateUpdate
 from .checkout_email_update import CheckoutEmailUpdate
 from .checkout_language_code_update import CheckoutLanguageCodeUpdate
 from .checkout_lines_add import CheckoutLinesAdd
@@ -29,6 +30,7 @@ __all__ = [
     "CheckoutCustomerNoteUpdate",
     "CheckoutDelete",
     "CheckoutDeliveryMethodUpdate",
+    "CheckoutDesiredDeliveryDateUpdate",
     "CheckoutEmailUpdate",
     "CheckoutLanguageCodeUpdate",
     "CheckoutLinesAdd",

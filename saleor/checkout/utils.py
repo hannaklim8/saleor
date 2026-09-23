@@ -1,5 +1,6 @@
 """Checkout-related utility functions."""
 
+import datetime
 from collections.abc import Iterable
 from decimal import Decimal
 from typing import TYPE_CHECKING, Optional, cast
@@ -71,6 +72,27 @@ if TYPE_CHECKING:
     from ..core.pricing.interface import LineInfo
     from ..order.models import OrderLine
     from .fetch import CheckoutInfo, CheckoutLineInfo
+
+
+DESIRED_DELIVERY_DATE_MIN_DAYS_FROM_NOW = 1
+DESIRED_DELIVERY_DATE_MAX_DAYS_FROM_NOW = 30
+
+
+def is_desired_delivery_date_valid(desired_delivery_date: datetime.date) -> bool:
+    """Check whether the desired delivery date falls within the allowed window.
+
+    The window is calculated in UTC and spans from tomorrow up to 30 days from
+    today, both inclusive. This is a deliberate simplification for the first
+    version - it does not account for the customer's local timezone.
+    """
+    today = datetime.datetime.now(tz=datetime.UTC).date()
+    earliest_date = today + datetime.timedelta(
+        days=DESIRED_DELIVERY_DATE_MIN_DAYS_FROM_NOW
+    )
+    latest_date = today + datetime.timedelta(
+        days=DESIRED_DELIVERY_DATE_MAX_DAYS_FROM_NOW
+    )
+    return earliest_date <= desired_delivery_date <= latest_date
 
 
 def invalidate_checkout(

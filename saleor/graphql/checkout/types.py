@@ -46,13 +46,14 @@ from ..core.connection import CountableConnection
 from ..core.context import ChannelContext
 from ..core.descriptions import (
     ADDED_IN_323,
+    ADDED_IN_324,
     DEPRECATED_LEGACY_PAYMENTS,
     PREVIEW_FEATURE,
 )
 from ..core.doc_category import DOC_CATEGORY_CHECKOUT
 from ..core.enums import LanguageCodeEnum
 from ..core.fields import BaseField, PermissionsField
-from ..core.scalars import UUID, DateTime, PositiveDecimal
+from ..core.scalars import UUID, Date, DateTime, PositiveDecimal
 from ..core.tracing import traced_resolver
 from ..core.types import Money, NonNullList, TaxedMoney
 from ..core.types.sync_webhook_control import (
@@ -617,6 +618,12 @@ class Checkout(SyncWebhookControlContextModelObjectType[models.Checkout]):
     )
     customer_note = graphene.String(
         required=True, description="The customer note for the checkout. "
+    )
+    desired_delivery_date = Date(
+        description=(
+            "The desired delivery date requested by the customer."
+            + ADDED_IN_324
+        )
     )
     discount = graphene.Field(
         Money,

@@ -1141,6 +1141,73 @@ def test_note_in_created_order(
     assert order.customer_note == checkout_with_item.note
 
 
+def test_desired_delivery_date_in_created_order(
+    checkout_with_item, address, customer_user, site_settings
+):
+    # given
+    desired_delivery_date = timezone.now().date() + datetime.timedelta(days=5)
+    checkout_with_item.shipping_address = address
+    checkout_with_item.desired_delivery_date = desired_delivery_date
+    checkout_with_item.tracking_code = "tracking_code"
+    checkout_with_item.redirect_url = "https://www.example.com"
+    checkout_with_item.save()
+    manager = get_plugins_manager(allow_replica=False)
+    lines, _ = fetch_checkout_lines(checkout_with_item)
+    checkout_info = fetch_checkout_info(checkout_with_item, lines, manager)
+
+    # when
+    order = _create_order(
+        checkout_info=checkout_info,
+        checkout_lines=lines,
+        order_data=_prepare_order_data(
+            manager=manager,
+            checkout_info=checkout_info,
+            lines=lines,
+            prices_entered_with_tax=True,
+            site_settings=site_settings,
+        ),
+        user=customer_user,
+        app=None,
+        manager=manager,
+    )
+
+    # then
+    assert order.desired_delivery_date == desired_delivery_date
+
+
+def test_desired_delivery_date_not_set_in_created_order_when_missing_on_checkout(
+    checkout_with_item, address, customer_user, site_settings
+):
+    # given
+    checkout_with_item.shipping_address = address
+    checkout_with_item.desired_delivery_date = None
+    checkout_with_item.tracking_code = "tracking_code"
+    checkout_with_item.redirect_url = "https://www.example.com"
+    checkout_with_item.save()
+    manager = get_plugins_manager(allow_replica=False)
+    lines, _ = fetch_checkout_lines(checkout_with_item)
+    checkout_info = fetch_checkout_info(checkout_with_item, lines, manager)
+
+    # when
+    order = _create_order(
+        checkout_info=checkout_info,
+        checkout_lines=lines,
+        order_data=_prepare_order_data(
+            manager=manager,
+            checkout_info=checkout_info,
+            lines=lines,
+            prices_entered_with_tax=True,
+            site_settings=site_settings,
+        ),
+        user=customer_user,
+        app=None,
+        manager=manager,
+    )
+
+    # then
+    assert order.desired_delivery_date is None
+
+
 def test_create_order_with_variant_tracking_false(
     checkout, customer_user, variant_without_inventory_tracking, site_settings
 ):

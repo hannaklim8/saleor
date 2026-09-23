@@ -176,6 +176,7 @@ class Checkout(models.Model):
         on_delete=models.SET_NULL,
     )
     note = models.TextField(blank=True, default="")
+    desired_delivery_date = models.DateField(blank=True, null=True)
 
     currency = models.CharField(
         max_length=settings.DEFAULT_CURRENCY_CODE_LENGTH,
