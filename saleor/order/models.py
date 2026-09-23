@@ -353,6 +353,7 @@ class Order(ModelWithMetadata, ModelWithExternalReference):
     gift_cards = models.ManyToManyField(GiftCard, blank=True, related_name="orders")
     display_gross_prices = models.BooleanField(default=True)
     customer_note = models.TextField(blank=True, default="")
+    desired_delivery_date = models.DateField(blank=True, null=True)
     weight = MeasurementField(
         measurement=Weight,
         unit_choices=WeightUnits.CHOICES,

@@ -263,6 +263,93 @@ def test_checkout_complete_0_total_value_no_payment(
 
 
 @pytest.mark.integration
+def test_checkout_complete_transfers_desired_delivery_date_to_order(
+    user_api_client,
+    checkout_with_item_total_0,
+    address,
+):
+    # given
+    checkout = checkout_with_item_total_0
+    checkout.billing_address = address
+    desired_delivery_date = timezone.now().date() + timedelta(days=5)
+    checkout.desired_delivery_date = desired_delivery_date
+    checkout.save()
+
+    query = """
+        mutation checkoutComplete($id: ID, $redirectUrl: String) {
+            checkoutComplete(id: $id, redirectUrl: $redirectUrl) {
+                order {
+                    desiredDeliveryDate
+                }
+                errors {
+                    field
+                    message
+                }
+            }
+        }
+    """
+    variables = {
+        "id": to_global_id_or_none(checkout),
+        "redirectUrl": "https://www.example.com",
+    }
+
+    # when
+    response = user_api_client.post_graphql(query, variables)
+
+    # then
+    content = get_graphql_content(response)
+    data = content["data"]["checkoutComplete"]
+    assert len(data["errors"]) == 0
+    assert data["order"]["desiredDeliveryDate"] == desired_delivery_date.isoformat()
+
+    order = Order.objects.get()
+    assert order.desired_delivery_date == desired_delivery_date
+
+
+@pytest.mark.integration
+def test_checkout_complete_without_desired_delivery_date_leaves_order_field_empty(
+    user_api_client,
+    checkout_with_item_total_0,
+    address,
+):
+    # given
+    checkout = checkout_with_item_total_0
+    checkout.billing_address = address
+    checkout.desired_delivery_date = None
+    checkout.save()
+
+    query = """
+        mutation checkoutComplete($id: ID, $redirectUrl: String) {
+            checkoutComplete(id: $id, redirectUrl: $redirectUrl) {
+                order {
+                    desiredDeliveryDate
+                }
+                errors {
+                    field
+                    message
+                }
+            }
+        }
+    """
+    variables = {
+        "id": to_global_id_or_none(checkout),
+        "redirectUrl": "https://www.example.com",
+    }
+
+    # when
+    response = user_api_client.post_graphql(query, variables)
+
+    # then
+    content = get_graphql_content(response)
+    data = content["data"]["checkoutComplete"]
+    assert len(data["errors"]) == 0
+    assert data["order"]["desiredDeliveryDate"] is None
+
+    order = Order.objects.get()
+    assert order.desired_delivery_date is None
+
+
+@pytest.mark.integration
 def test_checkout_complete_0_total_value_from_voucher(
     user_api_client,
     checkout_without_shipping_required,

@@ -10697,6 +10697,13 @@ type Checkout implements Node & ObjectWithMetadata @doc(category: "Checkout") {
   customerNote: String!
 
   """
+  The desired delivery date requested by the customer.
+
+  Added in Saleor 3.24.
+  """
+  desiredDeliveryDate: Date
+
+  """
   The total discount applied to the checkout. Note: Only discount created via voucher are included in this field.
   """
   discount: Money
@@ -11961,6 +11968,13 @@ type Order implements Node & ObjectWithMetadata @doc(category: "Orders") {
 
   """Additional information provided by the customer about the order."""
   customerNote: String!
+
+  """
+  The desired delivery date requested by the customer.
+
+  Added in Saleor 3.24.
+  """
+  desiredDeliveryDate: Date
 
   """Weight of the order."""
   weight: Weight!
@@ -21302,6 +21316,26 @@ type Mutation {
     """Checkout token."""
     token: UUID @deprecated(reason: "Use `id` instead.")
   ): CheckoutDeliveryMethodUpdate @doc(category: "Checkout") @webhookEventsInfo(asyncEvents: [CHECKOUT_UPDATED], syncEvents: [SHIPPING_LIST_METHODS_FOR_CHECKOUT, CHECKOUT_FILTER_SHIPPING_METHODS])
+
+  """
+  Updates the desired delivery date of the checkout.
+
+  Added in Saleor 3.24.
+
+  Triggers the following webhook events:
+  - CHECKOUT_UPDATED (async): A checkout was updated.
+  """
+  checkoutDesiredDeliveryDateUpdate(
+    """
+    The desired delivery date. Must be a date between tomorrow and 30 days from now, calculated in UTC. Pass `null` to clear a previously set date.
+
+    Added in Saleor 3.24.
+    """
+    desiredDeliveryDate: Date
+
+    """The checkout's ID."""
+    id: ID!
+  ): CheckoutDesiredDeliveryDateUpdate @doc(category: "Checkout") @webhookEventsInfo(asyncEvents: [CHECKOUT_UPDATED], syncEvents: [])
 
   """
   Updates language code in the existing checkout.
@@ -30860,6 +30894,7 @@ enum CheckoutErrorCode @doc(category: "Checkout") {
   NON_REMOVABLE_GIFT_LINE
   SHIPPING_CHANGE_FORBIDDEN
   MISSING_ADDRESS_DATA
+  DESIRED_DELIVERY_DATE_OUT_OF_RANGE
 }
 
 """
@@ -31357,6 +31392,21 @@ Triggers the following webhook events:
 type CheckoutDeliveryMethodUpdate @doc(category: "Checkout") @webhookEventsInfo(asyncEvents: [CHECKOUT_UPDATED], syncEvents: [SHIPPING_LIST_METHODS_FOR_CHECKOUT, CHECKOUT_FILTER_SHIPPING_METHODS]) {
   """An updated checkout."""
   checkout: Checkout
+  errors: [CheckoutError!]!
+}
+
+"""
+Updates the desired delivery date of the checkout.
+
+Added in Saleor 3.24.
+
+Triggers the following webhook events:
+- CHECKOUT_UPDATED (async): A checkout was updated.
+"""
+type CheckoutDesiredDeliveryDateUpdate @doc(category: "Checkout") @webhookEventsInfo(asyncEvents: [CHECKOUT_UPDATED], syncEvents: []) {
+  """An updated checkout."""
+  checkout: Checkout
+  checkoutErrors: [CheckoutError!]! @deprecated(reason: "Use `errors` field instead.")
   errors: [CheckoutError!]!
 }
 

@@ -286,6 +286,7 @@ def _process_user_data_for_order(checkout_info: "CheckoutInfo", manager):
         "user_email": checkout_info.get_customer_email(),
         "billing_address": billing_address,
         "customer_note": checkout_info.checkout.note,
+        "desired_delivery_date": checkout_info.checkout.desired_delivery_date,
     }
 
 

@@ -28,6 +28,7 @@ from .mutations import (
     CheckoutCustomerNoteUpdate,
     CheckoutDelete,
     CheckoutDeliveryMethodUpdate,
+    CheckoutDesiredDeliveryDateUpdate,
     CheckoutEmailUpdate,
     CheckoutLanguageCodeUpdate,
     CheckoutLinesAdd,
@@ -146,6 +147,7 @@ class CheckoutMutations(graphene.ObjectType):
         deprecation_reason="Use `checkoutDeliveryMethodUpdate` instead."
     )
     checkout_delivery_method_update = CheckoutDeliveryMethodUpdate.Field()
+    checkout_desired_delivery_date_update = CheckoutDesiredDeliveryDateUpdate.Field()
     checkout_language_code_update = CheckoutLanguageCodeUpdate.Field()
 
     order_create_from_checkout = OrderCreateFromCheckout.Field()

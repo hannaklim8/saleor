@@ -77,6 +77,7 @@ from ..core.context import ChannelContext
 from ..core.descriptions import (
     ADDED_IN_322,
     ADDED_IN_323,
+    ADDED_IN_324,
     DEPRECATED_IN_3X_INPUT,
     DEPRECATED_LEGACY_PAYMENTS,
     PREVIEW_FEATURE,
@@ -85,7 +86,7 @@ from ..core.doc_category import DOC_CATEGORY_ORDERS
 from ..core.enums import LanguageCodeEnum
 from ..core.fields import PermissionsField
 from ..core.mutations import validation_error_to_error_type
-from ..core.scalars import DateTime, PositiveDecimal
+from ..core.scalars import Date, DateTime, PositiveDecimal
 from ..core.tracing import traced_resolver
 from ..core.types import (
     BaseObjectType,
@@ -1809,6 +1810,12 @@ class Order(SyncWebhookControlContextModelObjectType[ModelObjectType[models.Orde
     customer_note = graphene.String(
         required=True,
         description="Additional information provided by the customer about the order.",
+    )
+    desired_delivery_date = Date(
+        description=(
+            "The desired delivery date requested by the customer."
+            + ADDED_IN_324
+        )
     )
     weight = graphene.Field(Weight, required=True, description="Weight of the order.")
     redirect_url = graphene.String(
